@@ -10,6 +10,7 @@ function TranslatorApp({ handleCloseApp }) {
     useState(null);
   const [inputText, setInputText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleShowLanguages(type) {
     setShowLanguages(true);
@@ -32,12 +33,15 @@ function TranslatorApp({ handleCloseApp }) {
 
   async function translateText() {
     if (!inputText) return null;
+    setIsLoading(true);
+    setTranslatedText("Loading...");
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
       inputText
     )}!&langpair=${selectedLanguageFrom}|${selectedLanguageTo}`;
     const res = await fetch(url);
     const data = await res.json();
     console.log(data);
+    setIsLoading(false);
     setTranslatedText(data.responseData.translatedText);
   }
 
@@ -88,7 +92,10 @@ function TranslatorApp({ handleCloseApp }) {
         ></textarea>
         <div className="absolute bottom-2 right-4 text-gray-400">0/300</div>
       </div>
-      <button className="w-12 h-12 bg-gradient-to-r from-[#b6f492] to-[#338b93] rounded-full text-2xl text-gray-600 flex justify-center items-center active:translate-y-[1px]">
+      <button
+        className="w-12 h-12 bg-gradient-to-r from-[#b6f492] to-[#338b93] rounded-full text-2xl text-gray-600 flex justify-center items-center active:translate-y-[1px]"
+        disabled={isLoading}
+      >
         <i className="fa-solid fa-chevron-down" onClick={translateText}></i>
       </button>
       <div className="w-full">
