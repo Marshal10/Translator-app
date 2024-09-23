@@ -3,8 +3,8 @@ import { useState } from "react";
 import { languages } from "../languagesData";
 
 function TranslatorApp({ handleCloseApp }) {
-  const [selectedLanguageFrom, setSelectedLanguageFrom] = useState("en");
-  const [selectedLanguageTo, setSelectedLanguageTo] = useState("en");
+  const [selectedLanguageFrom, setSelectedLanguageFrom] = useState("en-GB");
+  const [selectedLanguageTo, setSelectedLanguageTo] = useState("en-GB");
   const [showLanguages, setShowLanguages] = useState(false);
   const [currentLanguageSelection, setCurrentLanguageSelection] =
     useState(null);
@@ -14,6 +14,20 @@ function TranslatorApp({ handleCloseApp }) {
     setCurrentLanguageSelection(type);
   }
 
+  function handleLanguageSelected(languageCode) {
+    if (currentLanguageSelection === "from") {
+      setSelectedLanguageFrom(languageCode);
+    } else {
+      setSelectedLanguageTo(languageCode);
+    }
+    setShowLanguages(false);
+  }
+
+  function handleSwapLanguages() {
+    setSelectedLanguageFrom(selectedLanguageTo);
+    setSelectedLanguageTo(selectedLanguageFrom);
+  }
+
   return (
     <div className="w-full flex flex-col gap-y-4 justify-center items-center px-8 pt-12 pb-6 relative">
       <button className="absolute top-4 right-4" onClick={handleCloseApp}>
@@ -21,11 +35,14 @@ function TranslatorApp({ handleCloseApp }) {
       </button>
       <div className="w-full min-h-20 flex justify-center items-center px-4 bg-gradient-to-r from-[#b6f492] to-[#338b93] text-gray-700 rounded-lg">
         <div className="language" onClick={() => handleShowLanguages("from")}>
-          English
+          {languages[selectedLanguageFrom] || "English"}
         </div>
-        <i className="fa-solid fa-arrows-rotate text-2xl mx-8 cursor-pointer"></i>
+        <i
+          className="fa-solid fa-arrows-rotate text-2xl mx-8 cursor-pointer"
+          onClick={handleSwapLanguages}
+        ></i>
         <div className="language" onClick={() => handleShowLanguages("to")}>
-          English
+          {languages[selectedLanguageTo] || "English"}
         </div>
       </div>
       {showLanguages && (
@@ -35,6 +52,7 @@ function TranslatorApp({ handleCloseApp }) {
               <li
                 className="cursor-pointer hover:bg-[#10646b] transition duration-200 p-2 rounded"
                 key={code}
+                onClick={() => handleLanguageSelected(code)}
               >
                 {language}
               </li>
