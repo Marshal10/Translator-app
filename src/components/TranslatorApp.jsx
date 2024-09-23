@@ -11,6 +11,8 @@ function TranslatorApp({ handleCloseApp }) {
   const [inputText, setInputText] = useState("");
   const [translatedText, setTranslatedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [charCount, setCharCount] = useState(0);
+  const maxCharCount = 200;
 
   function handleShowLanguages(type) {
     setShowLanguages(true);
@@ -31,22 +33,33 @@ function TranslatorApp({ handleCloseApp }) {
     setSelectedLanguageTo(selectedLanguageFrom);
   }
 
+  function handleInputChange(e) {
+    const value = e.target.value;
+    if (charCount <= maxCharCount) {
+      setInputText(value);
+      setCharCount(value.length);
+    }
+  }
+
   async function translateText() {
     if (!inputText) return null;
     setIsLoading(true);
     setTranslatedText("Loading...");
+
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
       inputText
     )}!&langpair=${selectedLanguageFrom}|${selectedLanguageTo}`;
+
     const res = await fetch(url);
     const data = await res.json();
-    console.log(data);
+
     setIsLoading(false);
     setTranslatedText(data.responseData.translatedText);
   }
 
   function handleKeyDown(e) {
     if (e.key === "Enter") {
+      e.preventDefault();
       translateText();
     }
   }
@@ -87,10 +100,12 @@ function TranslatorApp({ handleCloseApp }) {
         <textarea
           className="textarea"
           value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
         ></textarea>
-        <div className="absolute bottom-2 right-4 text-gray-400">0/300</div>
+        <div className="absolute bottom-2 right-4 text-gray-400">
+          {charCount}/{maxCharCount}
+        </div>
       </div>
       <button
         className="w-12 h-12 bg-gradient-to-r from-[#b6f492] to-[#338b93] rounded-full text-2xl text-gray-600 flex justify-center items-center active:translate-y-[1px]"
