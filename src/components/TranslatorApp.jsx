@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { languages } from "../languagesData";
 
 function TranslatorApp({ handleCloseApp }) {
@@ -13,6 +13,13 @@ function TranslatorApp({ handleCloseApp }) {
   const [isLoading, setIsLoading] = useState(false);
   const [charCount, setCharCount] = useState(0);
   const maxCharCount = 200;
+  const dropdownRef = useRef(null);
+
+  function handleClickOutside(e) {
+    if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+      setShowLanguages(false);
+    }
+  }
 
   function handleShowLanguages(type) {
     setShowLanguages(true);
@@ -42,7 +49,10 @@ function TranslatorApp({ handleCloseApp }) {
   }
 
   async function translateText() {
-    if (!inputText) return null;
+    if (!inputText || inputText.trim() === "") {
+      setTranslatedText("Please type something..");
+      return null;
+    }
     setIsLoading(true);
     setTranslatedText("Loading...");
 
@@ -64,6 +74,21 @@ function TranslatorApp({ handleCloseApp }) {
     }
   }
 
+  useEffect(
+    function () {
+      if (showLanguages) {
+        document.addEventListener("mousedown", handleClickOutside);
+      } else {
+        document.removeEventListener("mousedown", handleClickOutside);
+      }
+
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    },
+    [showLanguages]
+  );
+
   return (
     <div className="w-full flex flex-col gap-y-4 justify-center items-center px-8 pt-12 pb-6 relative">
       <button className="absolute top-4 right-4" onClick={handleCloseApp}>
@@ -82,7 +107,10 @@ function TranslatorApp({ handleCloseApp }) {
         </div>
       </div>
       {showLanguages && (
-        <div className="w-[calc(100%-4rem)] h-[calc(100%-9rem)] bg-gradient-to-r from-[#b6f492] to-[#338b93] absolute top-32 left-8 z-10 rounded shadow-lg p-4 overflow-y-scroll scrollbar-hide">
+        <div
+          className="w-[calc(100%-4rem)] h-[calc(100%-9rem)] bg-gradient-to-r from-[#b6f492] to-[#338b93] absolute top-32 left-8 z-10 rounded shadow-lg p-4 overflow-y-scroll scrollbar-hide"
+          ref={dropdownRef}
+        >
           <ul>
             {Object.entries(languages).map(([code, language]) => (
               <li
