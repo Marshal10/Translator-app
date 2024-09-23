@@ -8,6 +8,8 @@ function TranslatorApp({ handleCloseApp }) {
   const [showLanguages, setShowLanguages] = useState(false);
   const [currentLanguageSelection, setCurrentLanguageSelection] =
     useState(null);
+  const [inputText, setInputText] = useState("");
+  const [translatedText, setTranslatedText] = useState("");
 
   function handleShowLanguages(type) {
     setShowLanguages(true);
@@ -26,6 +28,23 @@ function TranslatorApp({ handleCloseApp }) {
   function handleSwapLanguages() {
     setSelectedLanguageFrom(selectedLanguageTo);
     setSelectedLanguageTo(selectedLanguageFrom);
+  }
+
+  async function translateText() {
+    if (!inputText) return null;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+      inputText
+    )}!&langpair=${selectedLanguageFrom}|${selectedLanguageTo}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    console.log(data);
+    setTranslatedText(data.responseData.translatedText);
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      translateText();
+    }
   }
 
   return (
@@ -61,14 +80,23 @@ function TranslatorApp({ handleCloseApp }) {
         </div>
       )}
       <div className="w-full relative">
-        <textarea className="textarea"></textarea>
+        <textarea
+          className="textarea"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onKeyDown={handleKeyDown}
+        ></textarea>
         <div className="absolute bottom-2 right-4 text-gray-400">0/300</div>
       </div>
       <button className="w-12 h-12 bg-gradient-to-r from-[#b6f492] to-[#338b93] rounded-full text-2xl text-gray-600 flex justify-center items-center active:translate-y-[1px]">
-        <i className="fa-solid fa-chevron-down"></i>
+        <i className="fa-solid fa-chevron-down" onClick={translateText}></i>
       </button>
       <div className="w-full">
-        <textarea className="textarea"></textarea>
+        <textarea
+          className="textarea"
+          value={translatedText}
+          readOnly
+        ></textarea>
       </div>
     </div>
   );
